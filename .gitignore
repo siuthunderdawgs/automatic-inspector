@@ -26,3 +26,13 @@
 *.exe
 *.out
 *.app
+
+# Eclipse files
+.cproject
+.project
+./Debug
+
+# Image files
+*.jpg
+*.jpeg
+*.png
