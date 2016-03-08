@@ -8,11 +8,13 @@
 #include "cv.h"
 #include "highgui.h"
 
+#include <math.h>
+
 #include "PowerLineDetection.h"
 #include "WindowedHoughTransform.h"
 #include "LinePainter.h"
 
-void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2)
+void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2, double angle)
 {
 	cv::Size image_size = input.size();
 	cv::Mat image_src = input.clone();
@@ -41,11 +43,11 @@ void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b
 	int N = 0;
 	for (std::vector<cv::Vec2f>::iterator it = lines_temp.begin() ; it != lines_temp.end(); ++it)
 	{
-		double rho = (*it)[0];
-		double rhosq = rho*rho;
+		double theta = (*it)[1];
+		double thetasq = theta*theta;
 
-		avg += rho;
-		avgsq += rhosq;
+		avg += theta;
+		avgsq += thetasq;
 		N++;
 	}
 
@@ -53,16 +55,29 @@ void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b
 	avgsq = avgsq/N;
 	stddev = sqrt(avgsq - avg*avg);
 
-	double magic = 1.5;
+
 	for (std::vector<cv::Vec2f>::iterator it = lines_temp.begin() ; it != lines_temp.end(); ++it)
 	{
-		double rho = (*it)[0];
+		double theta = (*it)[1];
 
-		if(avg - magic*stddev < rho && rho < avg + magic*stddev)
+		if(!isnan(angle))
 		{
-			lines.push_back(*it);
+			double magic = M_PI/6;
+			if(angle - magic < theta && theta < angle + magic)
+			{
+				lines.push_back(*it);
+			}
 		}
-	}
+		else
+		{
+			double magic = 1.5;
+			if(avg - magic*stddev < theta && theta < avg + magic*stddev)
+			{
+				lines.push_back(*it);
+			}
+		}
+
+}
 
 
 

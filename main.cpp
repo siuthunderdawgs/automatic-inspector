@@ -9,9 +9,52 @@
 #include <highgui.h>
 
 #include <iostream>
+#include <math.h>
 
 #include "power-line-detection/PowerLineDetection.h"
 #include "hot-spot-detection/hotSpotDetectionAlgorithm.h"
+
+struct MyPoint
+{
+	int x;
+	int y;
+} pt1, pt2;
+
+double angle = NAN;
+int counter = 0;
+
+void onClick(int event, int x, int y, int flags, void* userdata)
+{
+	if(event == EVENT_LBUTTONDOWN)
+	{
+		cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
+
+		if(counter == 0)
+		{
+			pt1.x = x;
+			pt1.y = y;
+			counter++;
+		}
+		else if(counter == 1)
+		{
+			pt2.x = x;
+			pt2.y = y;
+			counter = 0;
+
+			angle = atan2(double(pt1.y - pt2.y), double(pt1.x - pt2.x)) + M_PI + M_PI/2;
+			while(angle < 0 || M_PI < angle)
+			{
+				if(angle < 0)
+					angle += M_PI;
+				else
+					angle -= M_PI;
+			}
+
+			std::cout << "Angle: " << angle << std::endl;
+		}
+	}
+}
+
 
 cv::Mat image_src;
 
@@ -32,10 +75,15 @@ int main(int argc, char** argv)
 	 return -1;
 	}
 
+	cv::imshow("dir", image_src);
+	cv::setMouseCallback("dir", onClick);
+	cv::waitKey(0);
+	cv::destroyAllWindows();
+
 	cv::Mat line_in = image_src.clone();
 	cv::Mat line_out = image_src.clone();
 
-	PowerLineDetection(line_in, line_out, 0.5, 10, 200);
+	PowerLineDetection(line_in, line_out, 0.5, 10, 200, angle);
 
 
 	cv::Mat hot_inout = image_src.clone();
