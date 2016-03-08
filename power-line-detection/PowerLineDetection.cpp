@@ -14,7 +14,7 @@
 #include "WindowedHoughTransform.h"
 #include "LinePainter.h"
 
-void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2, double angle)
+void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2, double angle, double magic)
 {
 	cv::Size image_size = input.size();
 	cv::Mat image_src = input.clone();
@@ -62,7 +62,7 @@ void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b
 
 		if(!isnan(angle))
 		{
-			double magic = M_PI/6;
+			//double magic = M_PI/16;
 			if(angle - magic < theta && theta < angle + magic)
 			{
 				lines.push_back(*it);
@@ -70,7 +70,7 @@ void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b
 		}
 		else
 		{
-			double magic = 1.5;
+			//double magic = 1.5;
 			if(avg - magic*stddev < theta && theta < avg + magic*stddev)
 			{
 				lines.push_back(*it);

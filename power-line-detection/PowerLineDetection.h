@@ -11,6 +11,6 @@
 #include "cv.h"
 #include "highgui.h"
 
-void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2, double angle);
+void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2, double angle, double magic);
 
 #endif /* POWERLINEDETECTION_H_ */
