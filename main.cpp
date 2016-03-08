@@ -13,6 +13,7 @@
 
 #include "power-line-detection/PowerLineDetection.h"
 #include "hot-spot-detection/hotSpotDetectionAlgorithm.h"
+#include "decision/Decision.h"
 
 struct MyPoint
 {
@@ -110,5 +111,16 @@ int main(int argc, char** argv)
 	cv::imshow("conj", conjunction);
 
 	while(char(cv::waitKey(1)) != 'q'){}
+	cv::destroyAllWindows();
+
+	cv::Mat decision_out;
+	Decision(line_out, hot_inout, image_src, decision_out);
+
+	cv::imshow("src", image_src);
+	cv::imshow("decision", decision_out);
+
+	while(char(cv::waitKey(1)) != 'q'){}
+	cv::destroyAllWindows();
+
 	return 0;
 }
