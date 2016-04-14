@@ -58,6 +58,13 @@ void onClick(int event, int x, int y, int flags, void* userdata)
 	}
 }
 
+void MyEqualizeHist(cv::Mat& src, cv::Mat& dst)
+{
+	cv::Mat temp;
+	cv::cvtColor(src, temp, CV_BGR2GRAY);
+	cv::equalizeHist(temp, temp);
+	cv::cvtColor(temp, dst, CV_GRAY2BGR);
+}
 
 cv::Mat image_src;
 
@@ -90,6 +97,9 @@ int main(int argc, char** argv)
 
 	cv::Mat line_in = image_src.clone();
 	cv::Mat line_out = image_src.clone();
+
+	MyEqualizeHist(line_in, line_in);
+	cv::imshow("eql", line_in);
 
 	double om = 10.0;
 	double p1_b = 10;
