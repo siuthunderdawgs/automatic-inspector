@@ -89,7 +89,13 @@ int main(int argc, char** argv)
 	cv::Mat line_in = image_src.clone();
 	cv::Mat line_out = image_src.clone();
 
-	PowerLineDetection(line_in, line_out, 0.5, 10, 200, angle, M_PI/16);
+	double om = 10.0;
+	double p1_b = 10;
+	double p1_m = 0.5;
+	double p2 = 200;
+	double tm = 10.0;
+
+	PowerLineDetection(line_in, line_out, p1_m, p1_b, p2, om, tm);
 
 	std::cout << "Finding hot spots..." << std::endl;
 
