@@ -14,7 +14,7 @@
 #include "LinePainter.h"
 #include "Filters.h"
 
-void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2, double fbc_offset_mult, double fbc_thresh_mult)
+void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2, double fbc_offset_mult, double fbc_thresh_mult, double angle, double angle_thresh)
 {
 	cv::Size image_size = input.size();
 	cv::Mat image_src = input.clone();
@@ -30,6 +30,7 @@ void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b
 		WindowedHoughLine(image_src, image_can, lines_temp, 4, 4, 1, CV_PI/180, p1_m, p1_b);
 
 		FilterBackgroundContinuity(lines_temp, lines_temp, image_src, fbc_offset_mult, fbc_thresh_mult);
+		FilterKnownAngle(lines_temp, lines_temp, angle, angle_thresh);
 
 		LinePainter painter;
 		painter.SetImage(&image_mask);

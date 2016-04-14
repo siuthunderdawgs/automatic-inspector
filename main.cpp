@@ -15,6 +15,8 @@
 #include "hot-spot-detection/hotSpotDetectionAlgorithm.h"
 #include "decision/Decision.h"
 
+#include "power-line-detection/LineSegment.h"
+
 struct MyPoint
 {
 	int x;
@@ -22,6 +24,7 @@ struct MyPoint
 } pt1, pt2;
 
 double angle = NAN;
+double angle_thresh = M_PI/8;
 int counter = 0;
 
 void onClick(int event, int x, int y, int flags, void* userdata)
@@ -42,14 +45,13 @@ void onClick(int event, int x, int y, int flags, void* userdata)
 			pt2.y = y;
 			counter = 0;
 
-			angle = atan2(double(pt1.y - pt2.y), double(pt1.x - pt2.x)) + M_PI + M_PI/2;
-			while(angle < 0 || M_PI < angle)
-			{
-				if(angle < 0)
-					angle += M_PI;
-				else
-					angle -= M_PI;
-			}
+			cv::Point pt1_cv(pt1.x, pt1.y);
+			cv::Point pt2_cv(pt2.x, pt2.y);
+			LineSegment line(pt1_cv, pt2_cv);
+
+			double rho, theta;
+			line.GetHesseNormalForm(rho, theta);
+			angle = theta;
 
 			std::cout << "Angle: " << angle << std::endl;
 		}
@@ -95,7 +97,7 @@ int main(int argc, char** argv)
 	double p2 = 200;
 	double tm = 10.0;
 
-	PowerLineDetection(line_in, line_out, p1_m, p1_b, p2, om, tm);
+	PowerLineDetection(line_in, line_out, p1_m, p1_b, p2, om, tm, angle, angle_thresh);
 
 	std::cout << "Finding hot spots..." << std::endl;
 
