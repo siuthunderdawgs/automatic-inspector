@@ -155,7 +155,10 @@ int main(int argc, char** argv)
 	std::cout << "Analyzing hot spots and power lines..." << std::endl;
 
 	cv::Mat decision_out;
-	Decision(line_out, hot_out, image_src, decision_out);
+
+	double stddev_mult = 2.0;
+
+	Decision(line_out, hot_out, image_src, decision_out, stddev_mult);
 
 	std::cout << "Displaying analysis..." << std::endl;
 	std::cout << "Please press 'q' to continue." << std::endl;
