@@ -124,8 +124,10 @@ int main(int argc, char** argv)
 	double p1_m = cfg.lookup("PowerLineDetection.p1_m");
 	double p2 = cfg.lookup("PowerLineDetection.p2");
 	double tm = cfg.lookup("PowerLineDetection.tm");
+	double canny_low = cfg.lookup("PowerLineDetection.canny_low");
+	double canny_high = cfg.lookup("PowerLineDetection.canny_high");
 
-	PowerLineDetection(line_in, line_out, p1_m, p1_b, p2, om, tm, angle, angle_thresh);
+	PowerLineDetection(line_in, line_out, canny_low, canny_high, p1_m, p1_b, p2, om, tm, angle, angle_thresh);
 
 	std::cout << "Finding hot spots..." << std::endl;
 
