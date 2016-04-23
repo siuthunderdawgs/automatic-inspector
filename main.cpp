@@ -7,6 +7,7 @@
 
 #include <cv.h>
 #include <highgui.h>
+#include <libconfig.h++>
 
 #include <iostream>
 #include <math.h>
@@ -84,6 +85,23 @@ int main(int argc, char** argv)
 	 std::cout << "ERROR: Cannot open " << filename << std::endl;
 	 return -1;
 	}
+	
+	libconfig::Config cfg;
+	try
+	{
+		cfg.readFile("main.cfg");
+	}
+	catch(const libconfig::FileIOException &fioex)
+	{
+		std::cerr << "I/O error while reading file." << std::endl;
+		return(EXIT_FAILURE);
+	}
+	catch(const libconfig::ParseException &pex)
+	{
+		std::cerr << "Parse error at " << pex.getFile() << 
+		":" << pex.getLine() << " - " << pex.getError() << std::endl;
+		return(EXIT_FAILURE);
+	}
 
 	std::cout << "Capturing angle of line..." << std::endl;
 	std::cout << "Please click twice to set angle then press any button to continue." << std::endl;
@@ -101,11 +119,11 @@ int main(int argc, char** argv)
 	MyEqualizeHist(line_in, line_in);
 	cv::imshow("eql", line_in);
 
-	double om = 10.0;
-	double p1_b = 10;
-	double p1_m = 0.5;
-	double p2 = 200;
-	double tm = 10.0;
+	double om = cfg.lookup("PowerLineDetection.om");
+	double p1_b = cfg.lookup("PowerLineDetection.p1_b");
+	double p1_m = cfg.lookup("PowerLineDetection.p1_m");
+	double p2 = cfg.lookup("PowerLineDetection.p2");
+	double tm = cfg.lookup("PowerLineDetection.tm");
 
 	PowerLineDetection(line_in, line_out, p1_m, p1_b, p2, om, tm, angle, angle_thresh);
 
@@ -120,12 +138,12 @@ int main(int argc, char** argv)
 	cv::Mat hot_out = cv::Mat::zeros(image_src.size(), CV_8U);
 	vector<vector<cv::Point> > contours;
 
-	int win_horz = 4;
-	int win_vert = 4;
-	double pix_thrsh_lowr = 3.0;
-	double pix_thrsh_uppr = 50.0;
-	double thresh_percent = 0.1;
-	int blur_ksize = 3; // must be odd
+	int win_horz = cfg.lookup("hotSpotDetection.win_horz");
+	int win_vert = cfg.lookup("hotSpotDetection.win_vert");
+	double pix_thrsh_lowr = cfg.lookup("hotSpotDetection.pix_thrsh_lowr");
+	double pix_thrsh_uppr = cfg.lookup("hotSpotDetection.pix_thrsh_uppr");
+	double thresh_percent = cfg.lookup("hotSpotDetection.thresh_percent");
+	int blur_ksize = cfg.lookup("hotSpotDetection.blur_ksize");
 
 	hotSpotDetectionAlgorithm(hot_in, hot_out, win_horz, win_vert, contours, thresh_percent, pix_thrsh_lowr, pix_thrsh_uppr, blur_ksize); //blur filter - getContourImg()
 
@@ -156,7 +174,7 @@ int main(int argc, char** argv)
 
 	cv::Mat decision_out;
 
-	double stddev_mult = 2.0;
+	double stddev_mult = cfg.lookup("Decision.stddev_mult");
 
 	Decision(line_out, hot_out, image_src, decision_out, stddev_mult);
 
