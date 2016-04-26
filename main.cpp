@@ -18,9 +18,6 @@
 
 #include "power-line-detection/LineSegment.h"
 
-using namespace std;
-using namespace std::chrono;
-
 struct MyPoint
 {
 	int x;
@@ -111,11 +108,11 @@ int main(int argc, char** argv)
 	double p2 = 200;
 	double tm = 10.0;
 
-	high_resolution_clock::time_point t11 = high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point t11 = std::chrono::high_resolution_clock::now();
 	PowerLineDetection(line_in, line_out, p1_m, p1_b, p2, om, tm, angle, angle_thresh);
-	high_resolution_clock::time_point t12 = high_resolution_clock::now();
-	auto duration1 = duration_cast<milliseconds>(t12-t11).count();
-	std::cout << duration1;
+	std::chrono::high_resolution_clock::time_point t12 = std::chrono::high_resolution_clock::now();
+	auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(t12-t11).count();
+	std::cout << "Duration of PowerLineDetection():\t" << duration1 << " ms"  << std::endl;
 
 	std::cout << "Finding hot spots..." << std::endl;
 
@@ -135,11 +132,11 @@ int main(int argc, char** argv)
 	double thresh_percent = 0.1;
 	int blur_ksize = 3; // must be odd
 
-	high_resolution_clock::time_point t21 = high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point t21 = std::chrono::high_resolution_clock::now();
 	hotSpotDetectionAlgorithm(hot_in, hot_out, win_horz, win_vert, contours, thresh_percent, pix_thrsh_lowr, pix_thrsh_uppr, blur_ksize); //blur filter - getContourImg()
-	high_resolution_clock::time_point t22 = high_resolution_clock::now();
-	auto duration2 = duration_cast<milliseconds>(t22-t21).count();
-	std::cout << duration2;
+	std::chrono::high_resolution_clock::time_point t22 = std::chrono::high_resolution_clock::now();
+	auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(t22-t21).count();
+	std::cout << "Duration of hotSpotDetectionAlgorithm():\t" << duration2 << " ms"  << std::endl;
 
 	{
 		cv::Mat temp;
@@ -168,11 +165,11 @@ int main(int argc, char** argv)
 
 	cv::Mat decision_out;
 
-	high_resolution_clock::time_point t31 = high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point t31 = std::chrono::high_resolution_clock::now();
 	Decision(line_out, hot_out, image_src, decision_out);
-	high_resolution_clock::time_point t32 = high_resolution_clock::now();
-	auto duration3 = duration_cast<milliseconds>(t32-t31).count();
-	std::cout << duration3;
+	std::chrono::high_resolution_clock::time_point t32 = std::chrono::high_resolution_clock::now();
+	auto duration3 = std::chrono::duration_cast<std::chrono::milliseconds>(t32-t31).count();
+	std::cout << "Duration of Decision():\t" << duration3 << " ms" << std::endl;
 
 	std::cout << "Displaying analysis..." << std::endl;
 	std::cout << "Please press 'q' to continue." << std::endl;
