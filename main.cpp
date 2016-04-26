@@ -7,6 +7,7 @@
 
 #include <cv.h>
 #include <highgui.h>
+#include <libconfig.h++>
 
 #include <chrono>
 #include <iostream>
@@ -85,6 +86,23 @@ int main(int argc, char** argv)
 	 std::cout << "ERROR: Cannot open " << filename << std::endl;
 	 return -1;
 	}
+	
+	libconfig::Config cfg;
+	try
+	{
+		cfg.readFile("main.cfg");
+	}
+	catch(const libconfig::FileIOException &fioex)
+	{
+		std::cerr << "I/O error while reading file." << std::endl;
+		return(EXIT_FAILURE);
+	}
+	catch(const libconfig::ParseException &pex)
+	{
+		std::cerr << "Parse error at " << pex.getFile() << 
+		":" << pex.getLine() << " - " << pex.getError() << std::endl;
+		return(EXIT_FAILURE);
+	}
 
 	std::cout << "Capturing angle of line..." << std::endl;
 	std::cout << "Please click twice to set angle then press any button to continue." << std::endl;
@@ -102,14 +120,16 @@ int main(int argc, char** argv)
 	MyEqualizeHist(line_in, line_in);
 	cv::imshow("eql", line_in);
 
-	double om = 10.0;
-	double p1_b = 10;
-	double p1_m = 0.5;
-	double p2 = 200;
-	double tm = 10.0;
+	double om = cfg.lookup("PowerLineDetection.om");
+	double p1_b = cfg.lookup("PowerLineDetection.p1_b");
+	double p1_m = cfg.lookup("PowerLineDetection.p1_m");
+	double p2 = cfg.lookup("PowerLineDetection.p2");
+	double tm = cfg.lookup("PowerLineDetection.tm");
+	double canny_low = cfg.lookup("PowerLineDetection.canny_low");
+	double canny_high = cfg.lookup("PowerLineDetection.canny_high");
 
 	std::chrono::high_resolution_clock::time_point t11 = std::chrono::high_resolution_clock::now();
-	PowerLineDetection(line_in, line_out, p1_m, p1_b, p2, om, tm, angle, angle_thresh);
+	PowerLineDetection(line_in, line_out, canny_low, canny_high, p1_m, p1_b, p2, om, tm, angle, angle_thresh);
 	std::chrono::high_resolution_clock::time_point t12 = std::chrono::high_resolution_clock::now();
 	auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(t12-t11).count();
 	std::cout << "Duration of PowerLineDetection():\t" << duration1 << " ms"  << std::endl;
@@ -125,12 +145,12 @@ int main(int argc, char** argv)
 	cv::Mat hot_out = cv::Mat::zeros(image_src.size(), CV_8U);
 	vector<vector<cv::Point> > contours;
 
-	int win_horz = 4;
-	int win_vert = 4;
-	double pix_thrsh_lowr = 3.0;
-	double pix_thrsh_uppr = 50.0;
-	double thresh_percent = 0.1;
-	int blur_ksize = 3; // must be odd
+	int win_horz = cfg.lookup("hotSpotDetection.win_horz");
+	int win_vert = cfg.lookup("hotSpotDetection.win_vert");
+	double pix_thrsh_lowr = cfg.lookup("hotSpotDetection.pix_thrsh_lowr");
+	double pix_thrsh_uppr = cfg.lookup("hotSpotDetection.pix_thrsh_uppr");
+	double thresh_percent = cfg.lookup("hotSpotDetection.thresh_percent");
+	int blur_ksize = cfg.lookup("hotSpotDetection.blur_ksize");
 
 	std::chrono::high_resolution_clock::time_point t21 = std::chrono::high_resolution_clock::now();
 	hotSpotDetectionAlgorithm(hot_in, hot_out, win_horz, win_vert, contours, thresh_percent, pix_thrsh_lowr, pix_thrsh_uppr, blur_ksize); //blur filter - getContourImg()
@@ -165,8 +185,10 @@ int main(int argc, char** argv)
 
 	cv::Mat decision_out;
 
+	double stddev_mult = cfg.lookup("Decision.stddev_mult");
+
 	std::chrono::high_resolution_clock::time_point t31 = std::chrono::high_resolution_clock::now();
-	Decision(line_out, hot_out, image_src, decision_out);
+	Decision(line_out, hot_out, image_src, decision_out, stddev_mult);
 	std::chrono::high_resolution_clock::time_point t32 = std::chrono::high_resolution_clock::now();
 	auto duration3 = std::chrono::duration_cast<std::chrono::milliseconds>(t32-t31).count();
 	std::cout << "Duration of Decision():\t" << duration3 << " ms" << std::endl;

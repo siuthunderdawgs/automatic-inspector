@@ -13,7 +13,7 @@
 
 #include "Blob.h"
 
-void Decision(cv::Mat mask_line, cv::Mat mask_hot, cv::Mat image_thermal, cv::Mat& out)
+void Decision(cv::Mat mask_line, cv::Mat mask_hot, cv::Mat image_thermal, cv::Mat& out, double stddev_mult)
 {
 	cv::Mat temp_gray; cv::cvtColor(image_thermal, temp_gray, CV_BGR2GRAY);
 	image_thermal = temp_gray.clone();
@@ -109,13 +109,21 @@ void Decision(cv::Mat mask_line, cv::Mat mask_hot, cv::Mat image_thermal, cv::Ma
 				int hot_meanval = int(hot_mean.at<double>(0,0));
 				int hot_stddevval = int(hot_stddev.at<double>(0,0));
 
-				std::cout << "Found hot spot!\n";
-				std::cout << "Average line intensity: " << line_meanval << "\n";
-				std::cout << "Std.dev. line intensity: " << line_stddevval << "\n";
-				std::cout << "Average spot intensity: " << hot_meanval << "\n";
-				std::cout << "Std. dev. spot intensity: " << hot_stddevval << std::endl;
+				if(hot_meanval > line_meanval + stddev_mult*line_stddevval)
+				{
+					std::cout << "Found major hot spot!\n";
 
-				cv::bitwise_or(output_local, *itb, output_local);
+					std::cout << "Average line intensity: " << line_meanval << "\n";
+					std::cout << "Std.dev. line intensity: " << line_stddevval << "\n";
+					std::cout << "Average spot intensity: " << hot_meanval << "\n";
+					std::cout << "Std. dev. spot intensity: " << hot_stddevval << std::endl;
+
+					cv::bitwise_or(output_local, *itb, output_local);
+				}
+				else
+				{
+					std::cout << "Found minor hot spot!\n";
+				}
 			}
 		}
 	}

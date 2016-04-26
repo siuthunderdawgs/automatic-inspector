@@ -11,6 +11,6 @@
 #include <cv.h>
 #include <highgui.h>
 
-void Decision(cv::Mat mask_line, cv::Mat mask_hot, cv::Mat image_thermal, cv::Mat& out);
+void Decision(cv::Mat mask_line, cv::Mat mask_hot, cv::Mat image_thermal, cv::Mat& out, double stddev_mult);
 
 #endif /* DECISION_H_ */

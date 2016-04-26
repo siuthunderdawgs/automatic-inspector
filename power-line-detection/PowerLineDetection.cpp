@@ -14,7 +14,7 @@
 #include "LinePainter.h"
 #include "Filters.h"
 
-void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b, double p2, double fbc_offset_mult, double fbc_thresh_mult, double angle, double angle_thresh)
+void PowerLineDetection(cv::Mat input, cv::Mat& output, double canny_low, double canny_high, double p1_m, double p1_b, double p2, double fbc_offset_mult, double fbc_thresh_mult, double angle, double angle_thresh)
 {
 	cv::Size image_size = input.size();
 	cv::Mat image_src = input.clone();
@@ -23,7 +23,7 @@ void PowerLineDetection(cv::Mat input, cv::Mat& output, double p1_m, double p1_b
 	cv::Mat image_des = cv::Mat::zeros(image_size, CV_8UC3);
 
 	cv::Mat image_can = cv::Mat::zeros(image_size, CV_8UC3);
-	cv::Canny(image_src, image_can, 50, 200, 3);
+	cv::Canny(image_src, image_can, canny_low, canny_high, 3);
 
 	{
 		std::vector<LineSegment> lines_temp;
